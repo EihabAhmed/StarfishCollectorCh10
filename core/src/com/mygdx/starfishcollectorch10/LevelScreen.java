@@ -7,6 +7,8 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
@@ -32,26 +34,27 @@ public class LevelScreen extends BaseScreen {
     public void initialize() {
         camera.setToOrtho(false, 800, 600);
 
-        BaseActor ocean = new BaseActor(0, 0, mainStage);
-        ocean.loadTexture("water-border.jpg");
-        ocean.setSize(1200, 900);
+        TilemapActor tma = new TilemapActor("map.tmx", mainStage);
 
-        BaseActor.setWorldBounds(ocean);
+        for (MapObject obj : tma.getTileList("Starfish")) {
+            MapProperties props = obj.getProperties();
+            new Starfish((float) props.get("x"), (float) props.get("y"), mainStage);
+        }
 
-        new Starfish(400, 400, mainStage);
-        new Starfish(500, 100, mainStage);
-        new Starfish(100, 450, mainStage);
-        new Starfish(200, 250, mainStage);
-        new Starfish(500, 500, mainStage);
-        new Starfish(700, 700, mainStage);
+        for (MapObject obj : tma.getTileList("Rock")) {
+            MapProperties props = obj.getProperties();
+            new Rock((float) props.get("x"), (float) props.get("y"), mainStage);
+        }
 
-        new Rock(200, 150, mainStage);
-        new Rock(100, 300, mainStage);
-        new Rock(300, 350, mainStage);
-        new Rock(450, 200, mainStage);
-        new Rock(100, 700, mainStage);
+        for (MapObject obj : tma.getTileList("Sign")) {
+            MapProperties props = obj.getProperties();
+            Sign s = new Sign((float) props.get("x"), (float) props.get("y"), mainStage);
+            s.setText((String) props.get("Message"));
+        }
 
-        turtle = new Turtle(20, 20, mainStage);
+        MapObject startPoint = tma.getRectangleList("Start").get(0);
+        MapProperties props = startPoint.getProperties();
+        turtle = new Turtle((float) props.get("x"), (float) props.get("y"), mainStage);
 
         win = false;
 
@@ -108,12 +111,6 @@ public class LevelScreen extends BaseScreen {
         uiTable.add().expandX().expandY();
         uiTable.add(muteButton).top();
         uiTable.add(restartButton).top();
-
-        Sign sign1 = new Sign(20, 400, mainStage);
-        sign1.setText("West Starfish Bay");
-
-        Sign sign2 = new Sign(600, 300, mainStage);
-        sign2.setText("East Starfish Bay");
 
         dialogBox = new DialogBox(0, 0, uiStage);
         dialogBox.setBackgroundColor(Color.TAN);
